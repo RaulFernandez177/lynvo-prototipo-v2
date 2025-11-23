@@ -1,0 +1,19 @@
+{
+  "name": "lynvo-prototipo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "openai": "^4.67.3"
+  },
+  "devDependencies": {
+    "electron": "^39.2.3"
+  }
+}
