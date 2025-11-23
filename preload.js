@@ -1,5 +1,8 @@
 const { contextBridge, ipcRenderer } = require("electron");
 
-contextBridge.exposeInMainWorld("electronAPI", {
-  enviarAudio: (buffer) => ipcRenderer.invoke("whisper:audio", buffer)
+contextBridge.exposeInMainWorld("lynvo", {
+  sendAudio: (float32Array) => {
+    const buffer = Buffer.from(float32Array.buffer);
+    ipcRenderer.send("audio:chunk", buffer);
+  }
 });
