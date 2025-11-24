@@ -32,11 +32,11 @@ async function iniciarMicrofono() {
       const inputData = e.inputBuffer.getChannelData(0);
 
       if (isRecording) {
-        audioChunks.push(new Float32Array(inputData));
+        audioChunks.push(new Float32Array(inputData.slice(0)));
 
         // Detectar silencio
         const volume = Math.max(...inputData);
-        if (volume < 0.015) {
+        if (volume < 0.001) {
           silenceCounter++;
         } else {
           silenceCounter = 0;

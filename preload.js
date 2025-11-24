@@ -2,10 +2,10 @@ const { contextBridge, ipcRenderer } = require("electron");
 
 contextBridge.exposeInMainWorld("lynvo", {
 
-  sendAudio: (uint8array) => {
-    // Convertimos correctamente Uint8Array → Buffer
-    const buffer = Buffer.from(uint8array);
-    ipcRenderer.send("audio-data", buffer);
+  sendAudio: (uint8Array) => {
+    // Enviar directamente el Uint8Array sin convertirlo
+    // El main.js ya hace: Buffer.from(rawData)
+    ipcRenderer.send("audio-data", uint8Array);
   },
 
   onTexto: (callback) => {
