@@ -1,8 +1,10 @@
-let isRecording = false;
-let audioChunks = [];       // almacenamiento del audio
-let silenceCounter = 0;     // contador de silencio
+console.log("Renderer cargado correctamente");
 
-// 🔵 BOTÓN HABLAR/PARAR
+let isRecording = false;
+let audioChunks = [];
+let silenceCounter = 0;
+
+// 🔵 Botón Hablar / Parar
 const micButton = document.getElementById("micButton");
 
 micButton.addEventListener("click", () => {
@@ -15,7 +17,7 @@ micButton.addEventListener("click", () => {
   }
 });
 
-// 🔵 INICIAR MICRÓFONO
+// 🔵 Iniciar micrófono
 async function iniciarMicrofono() {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -31,11 +33,10 @@ async function iniciarMicrofono() {
       if (isRecording) {
         audioChunks.push(new Float32Array(inputData.slice(0)));
 
-        // Detectar silencio
+        // Detector de silencio
         const volume = Math.max(...inputData);
         silenceCounter = volume < 0.001 ? silenceCounter + 1 : 0;
 
-        // Si llevamos silencio suficiente → enviar frase
         if (silenceCounter > 10) {
           enviarWav();
           silenceCounter = 0;
@@ -54,7 +55,7 @@ async function iniciarMicrofono() {
 iniciarMicrofono();
 
 // --------------------------------------------------------
-// FUNCIÓN: GENERAR WAV Y ENVIARLO AL MAIN
+// Convertir y enviar WAV al main
 // --------------------------------------------------------
 function enviarWav() {
   if (audioChunks.length === 0) return;
@@ -69,7 +70,7 @@ function enviarWav() {
     offset += chunk.length;
   }
 
-  audioChunks = []; // limpiar para la siguiente frase
+  audioChunks = [];
 
   const wavBuffer = convertFloatToWav(merged);
 
@@ -79,7 +80,7 @@ function enviarWav() {
 }
 
 // --------------------------------------------------------
-// FUNCIÓN: CONVERTIR FLOAT32 → WAV
+// Convertir Float32 → WAV
 // --------------------------------------------------------
 function convertFloatToWav(float32Array) {
   const buffer = new ArrayBuffer(44 + float32Array.length * 2);
@@ -96,12 +97,12 @@ function convertFloatToWav(float32Array) {
   writeString(view, 8, "WAVE");
   writeString(view, 12, "fmt ");
   view.setUint32(16, 16, true);
-  view.setUint16(20, 1, true);   // PCM
-  view.setUint16(22, 1, true);   // mono
-  view.setUint32(24, 44100, true);   // sample rate
-  view.setUint32(28, 44100 * 2, true); // byte rate
-  view.setUint16(32, 2, true);      // block align
-  view.setUint16(34, 16, true);     // bits per sample
+  view.setUint16(20, 1, true);
+  view.setUint16(22, 1, true);
+  view.setUint32(24, 44100, true);
+  view.setUint32(28, 44100 * 2, true);
+  view.setUint16(32, 2, true);
+  view.setUint16(34, 16, true);
   writeString(view, 36, "data");
   view.setUint32(40, float32Array.length * 2, true);
 
@@ -115,7 +116,7 @@ function convertFloatToWav(float32Array) {
 }
 
 // --------------------------------------------------------
-// MOSTRAR TEXTO TRANSCRITO EN PANTALLA
+// Mostrar texto transcrito y reproducir voz
 // --------------------------------------------------------
 window.lynvo.onTexto((data) => {
   const { original, traduccion, audio } = data;
@@ -125,7 +126,6 @@ window.lynvo.onTexto((data) => {
     <strong>Inglés:</strong> ${traduccion}
   `;
 
-  // 🔊 Reproducir la voz enviada desde main
   if (audio) {
     const blob = new Blob([audio], { type: "audio/mp3" });
     const url = URL.createObjectURL(blob);
