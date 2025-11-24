@@ -1,5 +1,16 @@
 console.log("Renderer cargado correctamente");
 
+let isRecording = false;
+
+// 🔵 BOTÓN HABLAR/PARAR
+const micButton = document.getElementById("micButton");
+
+micButton.addEventListener("click", () => {
+  isRecording = !isRecording;
+  micButton.textContent = isRecording ? "⏹️ Parar" : "🎤 Hablar";
+});
+
+// 🔵 INICIAR MICRÓFONO AUTOMÁTICAMENTE (opción 2)
 async function iniciarMicrofono() {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -12,8 +23,10 @@ async function iniciarMicrofono() {
     processor.onaudioprocess = (e) => {
       const inputData = e.inputBuffer.getChannelData(0);
 
-      // enviamos el Float32Array al preload
-      window.lynvo.sendAudio(inputData);
+      // Solo enviar audio si el usuario está grabando
+      if (isRecording && window.lynvo) {
+        window.lynvo.sendAudio(inputData);
+      }
     };
 
     source.connect(processor);
@@ -26,4 +39,6 @@ async function iniciarMicrofono() {
   }
 }
 
+// 👉 importante: iniciamos el micro una vez
 iniciarMicrofono();
+

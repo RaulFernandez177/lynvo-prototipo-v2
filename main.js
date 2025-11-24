@@ -17,7 +17,8 @@ function createWindow() {
 
 app.whenReady().then(createWindow);
 
-// 🔵 Recibe audio desde renderer
-ipcMain.on("audio:chunk", (event, chunk) => {
-  console.log("Chunk recibido:", chunk.length);
+// 🔵 Recibe audio desde preload (cada fragmento)
+ipcMain.on("audio-data", (event, buffer) => {
+  console.log("📡 Audio recibido en main:", buffer.length, "bytes");
 });
+
