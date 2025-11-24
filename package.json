@@ -11,6 +11,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "dotenv": "^17.2.3",
+    "form-data": "^4.0.5",
     "openai": "^4.67.3"
   },
   "devDependencies": {
