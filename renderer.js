@@ -118,10 +118,18 @@ function convertFloatToWav(float32Array) {
 // MOSTRAR TEXTO TRANSCRITO EN PANTALLA
 // --------------------------------------------------------
 window.lynvo.onTexto((data) => {
-  const { original, traduccion } = data;
+  const { original, traduccion, audio } = data;
 
   document.getElementById("subtitles").innerHTML = `
     <strong>Español:</strong> ${original}<br>
     <strong>Inglés:</strong> ${traduccion}
   `;
+
+  // 🔊 Reproducir la voz enviada desde main
+  if (audio) {
+    const blob = new Blob([audio], { type: "audio/mp3" });
+    const url = URL.createObjectURL(blob);
+    const audioPlayer = new Audio(url);
+    audioPlayer.play();
+  }
 });

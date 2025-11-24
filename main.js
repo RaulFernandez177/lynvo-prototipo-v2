@@ -1,4 +1,4 @@
-require("dotenv").config();
+require("dotenv").config(); 
 const { app, BrowserWindow, ipcMain } = require("electron");
 const path = require("path");
 const axios = require("axios");
@@ -55,7 +55,7 @@ async function transcribirWhisper(wavBuffer) {
 }
 
 // --------------------------------------------------
-// 2) TRADUCIR TEXTO (GPT-4o-mini o GPT-4o)
+// 2) TRADUCIR TEXTO → INGLÉS
 // --------------------------------------------------
 async function traducirTexto(texto) {
   try {
@@ -85,23 +85,54 @@ async function traducirTexto(texto) {
 }
 
 // --------------------------------------------------
-// 3) RECIBIR AUDIO → TRANSCRIBIR → TRADUCIR → ENVIAR A UI
+// 3) GENERAR VOZ → ALLOY (TTS)
+// --------------------------------------------------
+async function generarVoz(texto) {
+  try {
+    const response = await axios.post(
+      "https://api.openai.com/v1/audio/speech",
+      {
+        model: "gpt-4o-mini-tts",
+        voice: "alloy",
+        input: texto
+      },
+      {
+        responseType: "arraybuffer",
+        headers: {
+          "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
+          "Content-Type": "application/json"
+        }
+      }
+    );
+
+    return Buffer.from(response.data);
+
+  } catch (err) {
+    console.error("❌ Error generando voz:", err.response?.data || err.message);
+    return null;
+  }
+}
+
+// --------------------------------------------------
+// 4) FLUJO COMPLETO: AUDIO → TEXTO → TRADUCCIÓN → VOZ → UI
 // --------------------------------------------------
 ipcMain.on("audio-data", async (event, rawData) => {
   const wavBuffer = Buffer.from(rawData);
 
   // 1) Transcribir
   const textoOriginal = await transcribirWhisper(wavBuffer);
-
   if (!textoOriginal.trim()) return;
 
   // 2) Traducir
   const textoTraducido = await traducirTexto(textoOriginal);
 
-  // 3) Enviar texto traducido al renderer
+  // 3) Generar voz TTS (alloy)
+  const audioTTS = await generarVoz(textoTraducido);
+
+  // 4) Enviar al renderer
   event.sender.send("texto-transcrito", {
     original: textoOriginal,
-    traduccion: textoTraducido
+    traduccion: textoTraducido,
+    audio: audioTTS
   });
 });
-
