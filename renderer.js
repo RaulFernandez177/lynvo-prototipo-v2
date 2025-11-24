@@ -1,5 +1,3 @@
-console.log("Renderer cargado correctamente");
-
 let isRecording = false;
 let audioChunks = [];       // almacenamiento del audio
 let silenceCounter = 0;     // contador de silencio
@@ -11,14 +9,13 @@ micButton.addEventListener("click", () => {
   isRecording = !isRecording;
   micButton.textContent = isRecording ? "⏹️ Parar" : "🎤 Hablar";
 
-  // Si paramos, enviar lo que quede
   if (!isRecording) {
     enviarWav();
     silenceCounter = 0;
   }
 });
 
-// 🔵 INICIAR MICRÓFONO AUTOMÁTICAMENTE
+// 🔵 INICIAR MICRÓFONO
 async function iniciarMicrofono() {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -36,11 +33,7 @@ async function iniciarMicrofono() {
 
         // Detectar silencio
         const volume = Math.max(...inputData);
-        if (volume < 0.001) {
-          silenceCounter++;
-        } else {
-          silenceCounter = 0;
-        }
+        silenceCounter = volume < 0.001 ? silenceCounter + 1 : 0;
 
         // Si llevamos silencio suficiente → enviar frase
         if (silenceCounter > 10) {
@@ -52,8 +45,6 @@ async function iniciarMicrofono() {
 
     source.connect(processor);
     processor.connect(audioContext.destination);
-
-    console.log("Micrófono iniciado");
 
   } catch (error) {
     console.error("Error activando micrófono:", error);
@@ -82,7 +73,6 @@ function enviarWav() {
 
   const wavBuffer = convertFloatToWav(merged);
 
-  // 👉 Enviar WAV al main
   if (window.lynvo) {
     window.lynvo.sendAudio(wavBuffer);
   }
@@ -121,7 +111,7 @@ function convertFloatToWav(float32Array) {
     view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
   }
 
-  return new Uint8Array(buffer); // 👈 IMPORTANTÍSIMO: renderer NO usa Buffer
+  return new Uint8Array(buffer);
 }
 
 // --------------------------------------------------------
