@@ -24,7 +24,7 @@ function createWindow() {
 app.whenReady().then(createWindow);
 
 // --------------------------------------------------
-// FUNCIÓN WHISPER (AXIOS)
+// 1) TRANSCRIBIR AUDIO → TEXTO (WHISPER)
 // --------------------------------------------------
 async function transcribirWhisper(wavBuffer) {
   try {
@@ -55,14 +55,53 @@ async function transcribirWhisper(wavBuffer) {
 }
 
 // --------------------------------------------------
-// RECIBIR WAV DESDE RENDERER → ENVIAR A WHISPER
+// 2) TRADUCIR TEXTO (GPT-4o-mini o GPT-4o)
+// --------------------------------------------------
+async function traducirTexto(texto) {
+  try {
+    const response = await axios.post(
+      "https://api.openai.com/v1/chat/completions",
+      {
+        model: "gpt-4o-mini",
+        messages: [
+          { role: "system", content: "Eres un traductor profesional." },
+          { role: "user", content: `Traduce este texto al inglés: ${texto}` }
+        ]
+      },
+      {
+        headers: {
+          "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
+          "Content-Type": "application/json"
+        }
+      }
+    );
+
+    return response.data.choices[0].message.content.trim();
+
+  } catch (err) {
+    console.error("❌ Error al traducir:", err.response?.data || err.message);
+    return texto; // fallback
+  }
+}
+
+// --------------------------------------------------
+// 3) RECIBIR AUDIO → TRANSCRIBIR → TRADUCIR → ENVIAR A UI
 // --------------------------------------------------
 ipcMain.on("audio-data", async (event, rawData) => {
   const wavBuffer = Buffer.from(rawData);
 
-  const texto = await transcribirWhisper(wavBuffer);
+  // 1) Transcribir
+  const textoOriginal = await transcribirWhisper(wavBuffer);
 
-  if (texto.trim() !== "") {
-    event.sender.send("texto-transcrito", texto);
-  }
+  if (!textoOriginal.trim()) return;
+
+  // 2) Traducir
+  const textoTraducido = await traducirTexto(textoOriginal);
+
+  // 3) Enviar texto traducido al renderer
+  event.sender.send("texto-transcrito", {
+    original: textoOriginal,
+    traduccion: textoTraducido
+  });
 });
+

@@ -117,6 +117,11 @@ function convertFloatToWav(float32Array) {
 // --------------------------------------------------------
 // MOSTRAR TEXTO TRANSCRITO EN PANTALLA
 // --------------------------------------------------------
-window.lynvo.onTexto((texto) => {
-  document.getElementById("subtitles").textContent = texto;
+window.lynvo.onTexto((data) => {
+  const { original, traduccion } = data;
+
+  document.getElementById("subtitles").innerHTML = `
+    <strong>Español:</strong> ${original}<br>
+    <strong>Inglés:</strong> ${traduccion}
+  `;
 });
