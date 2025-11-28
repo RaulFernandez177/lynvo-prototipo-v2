@@ -2,7 +2,6 @@ console.log("Renderer cargado correctamente");
 
 let isRecording = false;
 let audioChunks = [];
-let silenceCounter = 0;
 
 // 🔵 Botón Hablar / Parar
 const micButton = document.getElementById("micButton");
@@ -13,7 +12,6 @@ micButton.addEventListener("click", () => {
 
   if (!isRecording) {
     enviarWav();
-    silenceCounter = 0;
   }
 });
 
@@ -32,15 +30,6 @@ async function iniciarMicrofono() {
 
       if (isRecording) {
         audioChunks.push(new Float32Array(inputData.slice(0)));
-
-        // Detector de silencio
-        const volume = Math.max(...inputData);
-        silenceCounter = volume < 0.001 ? silenceCounter + 1 : 0;
-
-        if (silenceCounter > 10) {
-          enviarWav();
-          silenceCounter = 0;
-        }
       }
     };
 
@@ -116,15 +105,35 @@ function convertFloatToWav(float32Array) {
 }
 
 // --------------------------------------------------------
-// Mostrar texto transcrito y reproducir voz
+// Mostrar texto transcrito y reproducir voz (ACUMULANDO)
 // --------------------------------------------------------
 window.lynvo.onTexto((data) => {
   const { original, traduccion, audio } = data;
 
-  document.getElementById("subtitles").innerHTML = `
+  // 🔵 CAMBIO AQUÍ: Crear elemento nuevo en vez de reemplazar todo
+  const subtitlesDiv = document.getElementById("subtitles");
+  
+  // Crear un nuevo mensaje
+  const mensajeDiv = document.createElement("div");
+  mensajeDiv.style.marginBottom = "15px";
+  mensajeDiv.style.padding = "10px";
+  mensajeDiv.style.backgroundColor = "#f0f0f0";
+  mensajeDiv.style.borderRadius = "5px";
+  
+  const timestamp = new Date().toLocaleTimeString();
+  
+  mensajeDiv.innerHTML = `
+    <small style="color: #666;">${timestamp}</small><br>
     <strong>Español:</strong> ${original}<br>
     <strong>Inglés:</strong> ${traduccion}
   `;
+  
+  // Añadir al principio (más reciente arriba) o al final (más reciente abajo)
+  subtitlesDiv.appendChild(mensajeDiv); // Para que lo nuevo salga abajo
+  // O usa: subtitlesDiv.insertBefore(mensajeDiv, subtitlesDiv.firstChild); // Para que lo nuevo salga arriba
+  
+  // Auto-scroll hacia abajo para ver lo último
+  subtitlesDiv.scrollTop = subtitlesDiv.scrollHeight;
 
   if (audio) {
     const blob = new Blob([audio], { type: "audio/mp3" });

@@ -8,6 +8,7 @@ const FormData = require("form-data");
 // CREAR VENTANA
 // --------------------------------------------------
 function createWindow() {
+
   const win = new BrowserWindow({
     width: 800,
     height: 600,
@@ -80,7 +81,7 @@ async function traducirTexto(texto) {
 
   } catch (err) {
     console.error("❌ Error al traducir:", err.response?.data || err.message);
-    return texto; // fallback
+    return texto;
   }
 }
 
@@ -119,20 +120,17 @@ async function generarVoz(texto) {
 ipcMain.on("audio-data", async (event, rawData) => {
   const wavBuffer = Buffer.from(rawData);
 
-  // 1) Transcribir
   const textoOriginal = await transcribirWhisper(wavBuffer);
   if (!textoOriginal.trim()) return;
 
-  // 2) Traducir
   const textoTraducido = await traducirTexto(textoOriginal);
 
-  // 3) Generar voz TTS (alloy)
   const audioTTS = await generarVoz(textoTraducido);
 
-  // 4) Enviar al renderer
   event.sender.send("texto-transcrito", {
     original: textoOriginal,
     traduccion: textoTraducido,
     audio: audioTTS
   });
 });
+
