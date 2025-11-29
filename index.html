@@ -2,23 +2,162 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>Zorlingo</title>
+    <title>Zorlingo - Traductor en Tiempo Real</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 1000px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      
+      h1 {
+        color: #333;
+        text-align: center;
+      }
+      
+      .controls {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      }
+      
+      .control-group {
+        margin-bottom: 15px;
+      }
+      
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+        color: #555;
+      }
+      
+      select, button {
+        width: 100%;
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+      }
+      
+      button {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-weight: bold;
+        margin-top: 10px;
+      }
+      
+      button:hover {
+        background-color: #45a049;
+      }
+      
+      button:active {
+        background-color: #3d8b40;
+      }
+      
+      #micButton.recording {
+        background-color: #f44336;
+      }
+      
+      #autoButton.active {
+        background-color: #f44336;
+      }
+      
+      .channel {
+        background: white;
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      }
+      
+      .channel h3 {
+        margin-top: 0;
+        color: #555;
+      }
+      
+      #subtitles {
+        max-height: 400px;
+        overflow-y: auto;
+        border: 1px solid #ccc;
+        padding: 10px;
+        background-color: white;
+        border-radius: 5px;
+      }
+      
+      .message {
+        margin-bottom: 15px;
+        padding: 10px;
+        background-color: #f9f9f9;
+        border-left: 4px solid #4CAF50;
+        border-radius: 3px;
+      }
+      
+      .message.incoming {
+        border-left-color: #2196F3;
+      }
+      
+      .timestamp {
+        color: #999;
+        font-size: 12px;
+      }
+      
+      .status {
+        padding: 8px;
+        background-color: #e3f2fd;
+        border-radius: 5px;
+        margin-top: 10px;
+        font-size: 14px;
+        color: #1976d2;
+      }
+    </style>
   </head>
   <body>
-    <h1>Zorlingo iniciado correctamente</h1>
+    <h1>🌍 Zorlingo - Traductor en Tiempo Real</h1>
 
-    <button id="micButton">🎤 Hablar</button>
+    <!-- Panel de Control -->
+    <div class="controls">
+      <h3>⚙️ Configuración</h3>
+      
+      <div class="control-group">
+        <label for="micSelect">Micrófono para tu voz:</label>
+        <select id="micSelect"></select>
+      </div>
+      
+      <div class="control-group">
+        <label for="systemSelect">Micrófono para audio entrante (Zoom/YouTube):</label>
+        <select id="systemSelect"></select>
+      </div>
+    </div>
 
-    <div id="subtitles" 
-         style="margin-top:20px; 
-                font-size:16px; 
-                color:#333;
-                max-height: 400px;
-                overflow-y: auto;
-                border: 1px solid #ccc;
-                padding: 10px;
-                background-color: white;">
-      Esperando audio...
+    <!-- Canal Manual (Tu voz) -->
+    <div class="channel">
+      <h3>🎤 Canal Manual (Tú hablas)</h3>
+      <button id="micButton">🎤 Hablar</button>
+      <div class="status" id="manualStatus">Esperando...</div>
+    </div>
+
+    <!-- Canal Automático (Tu amigo) -->
+    <div class="channel">
+      <h3>🔊 Canal Automático (Escuchando audio entrante)</h3>
+      <button id="autoButton">▶️ Iniciar Escucha Automática</button>
+      <div class="status" id="autoStatus">Detenido</div>
+    </div>
+
+    <!-- Conversación -->
+    <div class="channel">
+      <h3>💬 Conversación</h3>
+      <div id="subtitles">
+        <div style="text-align: center; color: #999; padding: 20px;">
+          Esperando audio...
+        </div>
+      </div>
     </div>
 
     <script src="renderer.js"></script>

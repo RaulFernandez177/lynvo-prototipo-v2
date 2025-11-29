@@ -8,17 +8,17 @@ const { contextBridge, ipcRenderer } = require("electron");
 contextBridge.exposeInMainWorld("lynvo", {
 
   // -------------------------
-  // 🔵 ENVÍO DE AUDIO
+  // 🔵 ENVÍO DE AUDIO (ahora incluye el canal)
   // -------------------------
-  sendAudio: (uint8Array) => {
-    ipcRenderer.send("audio-data", uint8Array);
+  sendAudio: (uint8Array, canal) => {
+    ipcRenderer.send("audio-data", { audio: uint8Array, canal: canal });
   },
 
   // -------------------------
   // 🔵 TEXTO QUE VIENE DESDE main.js
   // -------------------------
   onTexto: (callback) => {
-    ipcRenderer.on("texto-transcrito", (event, texto) => callback(texto));
+    ipcRenderer.on("texto-transcrito", (event, data) => callback(data));
   }
 
 });
