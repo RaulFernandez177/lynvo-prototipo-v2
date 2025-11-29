@@ -327,11 +327,11 @@ window.lynvo.onTexto((data) => {
 
   // Reproducir audio
   if (audio) {
-    const blob = new Blob([audio], { type: "audio/mp3" });
-    const url = URL.createObjectURL(blob);
-    const audioPlayer = new Audio(url);
-    audioPlayer.play();
-  }
+  const blob = new Blob([audio], { type: "audio/mp3" });
+  const url = URL.createObjectURL(blob);
+  const audioPlayer = new Audio(url);
+  audioPlayer.play();
+}
   
   // Actualizar estados
   if (canal === "manual") {
