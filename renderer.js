@@ -221,15 +221,30 @@ if (rms > SILENCE_THRESHOLD) {
 }
 
 function finalizarGrabacionAutomatica() {
+    
+  // 🛑 2) Continuar solo si realmente hay chunks
   if (audioChunksAuto.length > 0) {
     autoStatus.textContent = "⏳ Traduciendo...";
     autoStatus.style.backgroundColor = "#e8f5e9";
     autoStatus.style.color = "#2e7d32";
     
-    enviarWav(audioChunksAuto, "auto");
+    // 🛑 3) DURACIÓN MÍNIMA (filtro anti-fantasmas)
+    const totalSamples = audioChunksAuto.reduce((sum, chunk) => sum + chunk.length, 0);
+    const duracionSegundos = totalSamples / 44100;
+    
+    if (duracionSegundos >= 0.5) {
+      enviarWav(audioChunksAuto, "auto");
+    } else {
+      console.log(`⚠️ Audio descartado (${duracionSegundos.toFixed(2)}s) — demasiado corto.`);
+      autoStatus.textContent = "👂 Escuchando...";
+      autoStatus.style.backgroundColor = "#e3f2fd";
+      autoStatus.style.color = "#1976d2";
+    }
+    
     audioChunksAuto = [];
   }
   
+  // 🛑 4) Reset estado
   isSpeaking = false;
   
   if (isRecordingAuto) {
