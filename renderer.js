@@ -101,11 +101,23 @@ async function iniciarMicrofonoManual() {
     processorManual = audioContextManual.createScriptProcessor(4096, 1, 1);
 
     processorManual.onaudioprocess = (e) => {
-      const inputData = e.inputBuffer.getChannelData(0);
-      if (isRecordingManual) {
-        audioChunksManual.push(new Float32Array(inputData));
-      }
-    };
+  const inputData = e.inputBuffer.getChannelData(0);
+  
+  // Calcular nivel de audio (RMS)
+  let sum = 0;
+  for (let i = 0; i < inputData.length; i++) {
+    sum += inputData[i] * inputData[i];
+  }
+  const rms = Math.sqrt(sum / inputData.length);
+  
+  // Actualizar barra visual
+  const percentage = Math.min(100, rms * 1000); // Escalar para visualización
+  document.getElementById('manualMeter').style.width = percentage + '%';
+  
+  if (isRecordingManual) {
+    audioChunksManual.push(new Float32Array(inputData));
+  }
+};
 
     source.connect(processorManual);
     processorManual.connect(audioContextManual.destination);
@@ -166,9 +178,13 @@ async function iniciarMicrofonoAutomatico() {
         sum += inputData[i] * inputData[i];
       }
       const rms = Math.sqrt(sum / inputData.length);
-      
-      // Detección de voz
-      if (rms > SILENCE_THRESHOLD) {
+
+// Actualizar barra visual
+const percentage = Math.min(100, rms * 1000);
+document.getElementById('autoMeter').style.width = percentage + '%';
+
+// Detección de voz
+if (rms > SILENCE_THRESHOLD) {
         // Hay voz
         if (!isSpeaking) {
           isSpeaking = true;

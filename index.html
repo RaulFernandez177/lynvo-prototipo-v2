@@ -208,6 +208,35 @@
         font-size: 14px;
         color: #1976d2;
       }
+      /* === BARRAS DE AUDIO === */
+.audio-meter-container {
+  margin: 10px 0;
+}
+
+.audio-meter-container label {
+  display: block;
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 5px;
+  font-weight: normal;
+}
+
+.audio-meter-bg {
+  width: 100%;
+  height: 20px;
+  background-color: #e0e0e0;
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+}
+
+.audio-meter-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #4CAF50 0%, #8BC34A 50%, #FFC107 75%, #FF5722 100%);
+  width: 0%;
+  transition: width 0.05s ease-out;
+  border-radius: 10px;
+}
     </style>
   </head>
   <body>
@@ -229,18 +258,36 @@
     </div>
 
     <!-- Canal Manual (Tu voz) -->
-    <div class="channel">
-      <h3>🎤 Canal Manual (Tú hablas)</h3>
-      <button id="micButton">🎤 Hablar</button>
-      <div class="status" id="manualStatus">Esperando...</div>
+<div class="channel">
+  <h3>🎤 Canal Manual (Tú hablas)</h3>
+  <button id="micButton">🎤 Hablar</button>
+  
+  <!-- Barra de audio manual -->
+  <div class="audio-meter-container">
+    <label>Nivel de audio:</label>
+    <div class="audio-meter-bg">
+      <div class="audio-meter-bar" id="manualMeter"></div>
     </div>
+  </div>
+  
+  <div class="status" id="manualStatus">Esperando...</div>
+</div>
 
     <!-- Canal Automático (Tu amigo) -->
-    <div class="channel">
-      <h3>🔊 Canal Automático (Escuchando audio entrante)</h3>
-      <button id="autoButton">▶️ Iniciar Escucha Automática</button>
-      <div class="status" id="autoStatus">Detenido</div>
+<div class="channel">
+  <h3>🔊 Canal Automático (Escuchando audio entrante)</h3>
+  <button id="autoButton">▶️ Iniciar Escucha Automática</button>
+  
+  <!-- Barra de audio automático -->
+  <div class="audio-meter-container">
+    <label>Nivel de audio:</label>
+    <div class="audio-meter-bg">
+      <div class="audio-meter-bar" id="autoMeter"></div>
     </div>
+  </div>
+  
+  <div class="status" id="autoStatus">Detenido</div>
+</div>
 
     <!-- Conversación -->
     <div class="channel">
