@@ -110,9 +110,19 @@ async function iniciarMicrofonoManual() {
   }
   const rms = Math.sqrt(sum / inputData.length);
   
-  // Actualizar barra visual
-  const percentage = Math.min(100, rms * 1000); // Escalar para visualización
-  document.getElementById('manualMeter').style.width = percentage + '%';
+  /// Actualizar barras tipo VU-meter
+const percentage = Math.min(100, rms * 1000);
+const bars = document.querySelectorAll('#manualMeter .bar');
+
+// Reset si no hay audio real
+if (percentage < 2) {
+  bars.forEach(bar => bar.style.height = '5%');
+} else {
+  bars.forEach((bar, i) => {
+    const level = Math.max(5, percentage - i * 12.5);
+    bar.style.height = `${level}%`;
+  });
+}
   
   if (isRecordingManual) {
     audioChunksManual.push(new Float32Array(inputData));
@@ -179,9 +189,19 @@ async function iniciarMicrofonoAutomatico() {
       }
       const rms = Math.sqrt(sum / inputData.length);
 
-// Actualizar barra visual
+/// Actualizar barras tipo VU-meter
 const percentage = Math.min(100, rms * 1000);
-document.getElementById('autoMeter').style.width = percentage + '%';
+const bars = document.querySelectorAll('#autoMeter .bar');
+
+if (percentage < 2) {
+  bars.forEach(bar => bar.style.height = '5%');
+} else {
+  bars.forEach((bar, i) => {
+    const level = Math.max(5, percentage - i * 12.5);
+    bar.style.height = `${level}%`;
+  });
+}
+
 
 // Detección de voz
 if (rms > SILENCE_THRESHOLD) {

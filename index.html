@@ -237,6 +237,22 @@
   transition: width 0.05s ease-out;
   border-radius: 10px;
 }
+.audio-vumeter {
+  display: flex;
+  gap: 4px;
+  height: 25px;
+  align-items: flex-end;
+  margin-top: 5px;
+}
+
+.audio-vumeter .bar {
+  width: 6px;
+  background: linear-gradient(to top, #ff5722, #ffc107, #8bc34a);
+  height: 5%; /* se actualiza desde JS */
+  border-radius: 3px;
+  transition: height 0.08s ease-out;
+}
+
     </style>
   </head>
   <body>
@@ -263,12 +279,12 @@
   <button id="micButton">🎤 Hablar</button>
   
   <!-- Barra de audio manual -->
-  <div class="audio-meter-container">
-    <label>Nivel de audio:</label>
-    <div class="audio-meter-bg">
-      <div class="audio-meter-bar" id="manualMeter"></div>
-    </div>
-  </div>
+  <div class="audio-vumeter" id="manualMeter">
+  <!-- 8 barras -->
+  <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+  <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+</div>
+  
   
   <div class="status" id="manualStatus">Esperando...</div>
 </div>
@@ -279,12 +295,11 @@
   <button id="autoButton">▶️ Iniciar Escucha Automática</button>
   
   <!-- Barra de audio automático -->
-  <div class="audio-meter-container">
-    <label>Nivel de audio:</label>
-    <div class="audio-meter-bg">
-      <div class="audio-meter-bar" id="autoMeter"></div>
-    </div>
-  </div>
+  <div class="audio-vumeter" id="autoMeter">
+  <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+  <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+</div>
+  
   
   <div class="status" id="autoStatus">Detenido</div>
 </div>
