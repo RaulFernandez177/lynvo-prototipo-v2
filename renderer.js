@@ -310,28 +310,51 @@ window.lynvo.onTexto((data) => {
     subtitlesDiv.innerHTML = '';
   }
 
+  // Crear mensaje con estilo tipo chat
   const mensajeDiv = document.createElement("div");
-  mensajeDiv.className = canal === "auto" ? "message incoming" : "message";
+  mensajeDiv.className = canal === "manual" ? "message-sent" : "message-received";
   
   const timestamp = new Date().toLocaleTimeString();
-  const etiqueta = canal === "manual" ? "Tú" : "Entrada";
+  const showOriginals = document.getElementById('showOriginals').checked;
   
-  mensajeDiv.innerHTML = `
-    <span class="timestamp">${timestamp} - ${etiqueta}</span><br>
-    <strong>${canal === "manual" ? "Español" : "Inglés"}:</strong> ${original}<br>
-    <strong>${canal === "manual" ? "Inglés" : "Español"}:</strong> ${traduccion}
-  `;
+  // Construir HTML según el modo (simple o con originales)
+  let contenido = '';
+  
+  if (showOriginals) {
+    // MODO DEBUG: Mostrar original + traducción
+    contenido = `
+      <div class="bubble">
+        <span class="original-text">
+          <strong>${canal === "manual" ? "🇪🇸" : "🇬🇧"}:</strong> ${original}
+        </span>
+        <span class="translation-text">
+          <strong>${canal === "manual" ? "🇬🇧" : "🇪🇸"}:</strong> ${traduccion}
+        </span>
+      </div>
+      <span class="timestamp">${timestamp}</span>
+    `;
+  } else {
+    // MODO SIMPLE: Solo traducción
+    contenido = `
+      <div class="bubble">
+        <span class="translation-text">${traduccion}</span>
+      </div>
+      <span class="timestamp">${timestamp}</span>
+    `;
+  }
+  
+  mensajeDiv.innerHTML = contenido;
   
   subtitlesDiv.appendChild(mensajeDiv);
   subtitlesDiv.scrollTop = subtitlesDiv.scrollHeight;
 
   // Reproducir audio
   if (audio) {
-  const blob = new Blob([audio], { type: "audio/mp3" });
-  const url = URL.createObjectURL(blob);
-  const audioPlayer = new Audio(url);
-  audioPlayer.play();
-}
+    const blob = new Blob([audio], { type: "audio/mp3" });
+    const url = URL.createObjectURL(blob);
+    const audioPlayer = new Audio(url);
+    audioPlayer.play();
+  }
   
   // Actualizar estados
   if (canal === "manual") {
@@ -344,4 +367,46 @@ window.lynvo.onTexto((data) => {
       manualStatus.style.color = "#1976d2";
     }, 2000);
   }
+});
+
+// ============================================
+// EXPORTAR CONVERSACIÓN
+// ============================================
+document.getElementById('exportBtn').addEventListener('click', () => {
+  const mensajes = subtitlesDiv.querySelectorAll('.message-sent, .message-received');
+  
+  if (mensajes.length === 0) {
+    alert('No hay conversación para exportar');
+    return;
+  }
+  
+  let textoExportado = '📄 CONVERSACIÓN - ZORLINGO\n';
+  textoExportado += `Fecha: ${new Date().toLocaleString()}\n`;
+  textoExportado += '='.repeat(50) + '\n\n';
+  
+  mensajes.forEach(mensaje => {
+    const timestamp = mensaje.querySelector('.timestamp')?.textContent || '';
+    const tipo = mensaje.classList.contains('message-sent') ? 'Tú' : 'Entrada';
+    const bubble = mensaje.querySelector('.bubble');
+    
+    const original = bubble.querySelector('.original-text')?.textContent.trim() || '';
+    const traduccion = bubble.querySelector('.translation-text')?.textContent.trim() || bubble.textContent.trim();
+    
+    textoExportado += `[${timestamp}] ${tipo}\n`;
+    if (original) {
+      textoExportado += `${original}\n`;
+    }
+    textoExportado += `${traduccion}\n\n`;
+  });
+  
+  // Crear y descargar archivo
+  const blob = new Blob([textoExportado], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `conversacion_zorlingo_${Date.now()}.txt`;
+  a.click();
+  URL.revokeObjectURL(url);
+  
+  console.log('✅ Conversación exportada');
 });

@@ -82,30 +82,122 @@
         color: #555;
       }
       
+      /* === NUEVO: CHAT HEADER === */
+      .chat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      
+      .chat-controls {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+      
+      .toggle-container {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 14px;
+      }
+      
+      .toggle-container input[type="checkbox"] {
+        width: auto;
+        cursor: pointer;
+      }
+      
+      .toggle-container label {
+        margin: 0;
+        font-weight: normal;
+        cursor: pointer;
+      }
+      
+      #exportBtn {
+        background-color: #2196F3;
+        width: auto;
+        padding: 8px 20px;
+        font-size: 14px;
+        margin: 0;
+      }
+      
+      #exportBtn:hover {
+        background-color: #1976D2;
+      }
+      
+      /* === ÁREA DE CONVERSACIÓN === */
       #subtitles {
         max-height: 400px;
         overflow-y: auto;
         border: 1px solid #ccc;
         padding: 10px;
-        background-color: white;
+        background-color: #fafafa;
         border-radius: 5px;
       }
       
-      .message {
+      /* === NUEVO: MENSAJES TIPO CHAT === */
+      .message-sent {
         margin-bottom: 15px;
-        padding: 10px;
-        background-color: #f9f9f9;
-        border-left: 4px solid #4CAF50;
-        border-radius: 3px;
+        text-align: right;
+        clear: both;
       }
       
-      .message.incoming {
-        border-left-color: #2196F3;
+      .message-received {
+        margin-bottom: 15px;
+        text-align: left;
+        clear: both;
+      }
+      
+      .bubble {
+        display: inline-block;
+        max-width: 70%;
+        padding: 10px 15px;
+        border-radius: 18px;
+        word-wrap: break-word;
+        text-align: left;
+      }
+      
+      .message-sent .bubble {
+        background-color: #DCF8C6;
+      }
+      
+      .message-received .bubble {
+        background-color: #FFFFFF;
+        border: 1px solid #e0e0e0;
       }
       
       .timestamp {
+        display: block;
+        font-size: 11px;
         color: #999;
+        margin-top: 5px;
+      }
+      
+      .message-sent .timestamp {
+        text-align: right;
+      }
+      
+      .message-received .timestamp {
+        text-align: left;
+      }
+      
+      .original-text {
+        display: block;
         font-size: 12px;
+        color: #666;
+        font-style: italic;
+        margin-bottom: 5px;
+        padding-bottom: 5px;
+        border-bottom: 1px solid rgba(0,0,0,0.1);
+      }
+      
+      .translation-text {
+        display: block;
+        font-size: 15px;
+        color: #000;
       }
       
       .status {
@@ -152,7 +244,17 @@
 
     <!-- Conversación -->
     <div class="channel">
-      <h3>💬 Conversación</h3>
+      <div class="chat-header">
+        <h3>💬 Conversación</h3>
+        <div class="chat-controls">
+          <div class="toggle-container">
+            <input type="checkbox" id="showOriginals">
+            <label for="showOriginals">Mostrar originales</label>
+          </div>
+          <button id="exportBtn">📥 Exportar</button>
+        </div>
+      </div>
+      
       <div id="subtitles">
         <div style="text-align: center; color: #999; padding: 20px;">
           Esperando audio...
