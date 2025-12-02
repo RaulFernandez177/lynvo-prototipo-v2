@@ -200,15 +200,19 @@ ipcMain.on("audio-data", async (event, data) => {
 
   let idiomaOrigen, idiomaDestino, idiomaVoz;
 
-  if (canal === "manual") {
-    idiomaOrigen = "es";
-    idiomaDestino = "en";
-    idiomaVoz = "en";
-  } else {
-    idiomaOrigen = "en";
-    idiomaDestino = "es";
-    idiomaVoz = "es";
-  }
+  let outputDevice;
+
+if (canal === "manual") {
+  idiomaOrigen = "es";
+  idiomaDestino = "en";
+  idiomaVoz = "en";
+  outputDevice = "CALL";     // ← Enviar a Voicemeeter (VAIO3)
+} else {
+  idiomaOrigen = "en";
+  idiomaDestino = "es";
+  idiomaVoz = "es";
+  outputDevice = "HEADPHONES";  // ← Salida normal
+}
 
   // 1. TRANSCRIBIR
   const textoOriginal = await transcribirWhisper(wavBuffer, idiomaOrigen);
@@ -228,11 +232,12 @@ ipcMain.on("audio-data", async (event, data) => {
 
   // 4. ENVIAR AL RENDERER
   event.sender.send("texto-transcrito", {
-    original: textoOriginal,
-    traduccion: textoTraducido,
-    audio: audioTTS,
-    canal: canal
-  });
+  original: textoOriginal,
+  traduccion: textoTraducido,
+  audio: audioTTS,
+  canal: canal,
+  outputDevice: outputDevice   // ← NUEVO
+});
 
   console.log(`✅ Proceso completado para canal: ${canal}\n`);
 });

@@ -352,8 +352,8 @@ function convertFloatToWav(float32Array) {
 // ============================================
 // MOSTRAR TEXTO Y REPRODUCIR AUDIO
 // ============================================
-window.lynvo.onTexto((data) => {
-  const { original, traduccion, audio, canal } = data;
+window.lynvo.onTexto(async (data) => {
+    const { original, traduccion, audio, canal, outputDevice } = data;
 
   // Limpiar mensaje inicial si existe
   if (subtitlesDiv.children.length === 1 && 
@@ -399,13 +399,47 @@ window.lynvo.onTexto((data) => {
   subtitlesDiv.appendChild(mensajeDiv);
   subtitlesDiv.scrollTop = subtitlesDiv.scrollHeight;
 
-  // Reproducir audio
-  if (audio) {
-    const blob = new Blob([audio], { type: "audio/mp3" });
-    const url = URL.createObjectURL(blob);
-    const audioPlayer = new Audio(url);
-    audioPlayer.play();
+/// Reproducir audio según dispositivo
+if (audio) {
+  const blob = new Blob([audio], { type: "audio/mp3" });
+  const url = URL.createObjectURL(blob);
+  const audioPlayer = new Audio(url);
+
+  if (audioPlayer.setSinkId) {
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+
+      if (outputDevice === "CALL") {
+        // 👉 Canal manual: enviar al dispositivo para Zoom
+        const voicemeeterInput = devices.find(d =>
+          d.kind === "audiooutput" &&
+          d.label.includes("Voicemeeter Input")
+        );
+
+        if (voicemeeterInput) {
+          await audioPlayer.setSinkId(voicemeeterInput.deviceId);
+          console.log("🔊 Enviado a: Voicemeeter Input (Zoom)");
+        }
+      } else {
+        // 👉 Canal automático: enviar a tus auriculares Senary Audio
+        const headphones = devices.find(d =>
+          d.kind === "audiooutput" &&
+          d.label.includes("Headphones (Senary Audio)")
+        );
+
+        if (headphones) {
+          await audioPlayer.setSinkId(headphones.deviceId);
+          console.log("🎧 Enviado a: Headphones (Senary Audio)");
+        }
+      }
+    } catch (err) {
+      console.error("❌ Error cambiando salida:", err);
+    }
   }
+
+  audioPlayer.play();
+}
+
   
   // Actualizar estados
   if (canal === "manual") {
